@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "sigongbot"
+version = "0.1.0"
+description = "슬랙 회고 수집 봇"
+authors = ["Your Name <your.email@example.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+slack-bolt = "1.18.0"
+slack-sdk = "^3.26.1"
+supabase = "2.3.0"
+python-dotenv = "1.0.0"
+pre-commit = "^4.2.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
