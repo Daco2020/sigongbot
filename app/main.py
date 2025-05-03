@@ -65,7 +65,7 @@ def handle_submit_command(ack, body, client):
                 {
                     "type": "input",
                     "block_id": "action_plan",
-                    "label": {"type": "plain_text", "text": "액션 플랜"},
+                    "label": {"type": "plain_text", "text": "액션 아이템"},
                     "element": {
                         "type": "plain_text_input",
                         "action_id": "action_plan_input",
