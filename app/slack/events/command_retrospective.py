@@ -71,6 +71,9 @@ async def handle_command_retrospective(
         ),
     ]
 
+    # 명령어가 실행된 채널 ID 저장
+    channel_id = body["channel_id"]
+
     # 모달 뷰 생성
     view = View(
         type="modal",
@@ -78,6 +81,7 @@ async def handle_command_retrospective(
         title="회고 공유",
         submit="공유하기",
         blocks=blocks,
+        private_metadata=channel_id,  # 채널 ID를 private_metadata에 저장
     )
 
     # 모달 열기
