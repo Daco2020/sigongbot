@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: sigongbot-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - blue
+      - green
+    restart: always
+  blue:
+    image: ${DOCKERHUB_USERNAME}/sigongbot-server:${BLUE_VERSION:-latest}
+    container_name: sigongbot-server-blue
+    expose:
+      - "8000"
+    environment:
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    depends_on:
+      - db
+    restart: always
+
+  green:
+    image: ${DOCKERHUB_USERNAME}/sigongbot-server:${GREEN_VERSION:-latest}
+    container_name: sigongbot-server-green
+    expose:
+      - "8000"
+    environment:
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    depends_on:
+      - db
+    restart: always
+ 
