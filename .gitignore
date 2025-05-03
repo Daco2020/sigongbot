@@ -211,3 +211,5 @@ pyrightconfig.json
 
 .env
 .python-version
+.DS_Store
+logs.csv
