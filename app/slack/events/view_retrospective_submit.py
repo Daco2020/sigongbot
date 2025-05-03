@@ -1,10 +1,11 @@
 from loguru import logger
+from app.slack.types import ViewBodyType, ViewType
 from slack_bolt.async_app import AsyncAck
 from slack_sdk.web.async_client import AsyncWebClient
 
 
 async def handle_view_retrospective_submit(
-    ack: AsyncAck, body: dict, client: AsyncWebClient, view: dict
+    ack: AsyncAck, body: ViewBodyType, client: AsyncWebClient, view: ViewType
 ):
     """모달 제출 처리"""
     user_id = body["user"]["id"]
