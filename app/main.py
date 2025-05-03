@@ -64,11 +64,11 @@ def handle_submit_command(ack, body, client):
                 },
                 {
                     "type": "input",
-                    "block_id": "action_plan",
+                    "block_id": "action_item",
                     "label": {"type": "plain_text", "text": "액션 아이템"},
                     "element": {
                         "type": "plain_text_input",
-                        "action_id": "action_plan_input",
+                        "action_id": "action_item_input",
                         "multiline": True,
                     },
                 },
@@ -111,7 +111,7 @@ def handle_submission(ack, body, client, view):
     #     "good_points": values["good_points"]["good_points_input"]["value"],
     #     "improvements": values["improvements"]["improvements_input"]["value"],
     #     "learnings": values["learnings"]["learnings_input"]["value"],
-    #     "action_plan": values["action_plan"]["action_plan_input"]["value"],
+    #     "action_item": values["action_item"]["action_item_input"]["value"],
     #     "emotion_score": int(values["emotion_score"]["emotion_score_input"]["value"]),
     #     "emotion_reason": values["emotion_reason"]["emotion_reason_input"]["value"],
     #     "submitted_at": "now()",
