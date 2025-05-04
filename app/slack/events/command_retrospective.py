@@ -24,6 +24,17 @@ async def handle_command_retrospective(
     remaining_time_str = format_remaining_time(remaining_time)
 
     # TODO: 해당 유저가 이미 공유 했다면 모달 안내창 띄우기
+    # user_id = body["user_id"]
+    # view = View(
+    #     type="modal",
+    #     title="회고 공유",
+    #     # submit="확인",
+    #     blocks=[
+    #         SectionBlock(
+    #             text=f"<@{user_id}>님은 이미 `{session_name}` 회고를 공유했어요! 🤗",
+    #         ),
+    #     ],
+    # )
 
     # 블록 생성
     blocks = [
