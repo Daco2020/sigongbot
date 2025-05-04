@@ -23,3 +23,14 @@ repos:
           - "slack_bolt"
           - "fastapi"
           - "types-requests"
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        always_run: true
+        types: [python]
+        stages: [commit]
