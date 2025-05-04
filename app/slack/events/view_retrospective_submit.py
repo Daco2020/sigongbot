@@ -4,6 +4,8 @@ from slack_bolt.async_app import AsyncAck
 from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.models.blocks import SectionBlock, DividerBlock, ContextBlock
 
+from app.utils import get_current_session_info
+
 
 async def handle_view_retrospective_submit(
     ack: AsyncAck, body: ViewBodyType, client: AsyncWebClient, view: ViewType
@@ -39,9 +41,14 @@ async def handle_view_retrospective_submit(
             .get("value", "")
         )
 
+        current_session_info = get_current_session_info()
+        session_name = current_session_info[1]
+
         # 메시지 블록 생성
         blocks = [
-            SectionBlock(text=f"*<@{user_id}>님이 회고를 공유했어요! 🤗*"),
+            SectionBlock(
+                text=f"*<@{user_id}>님이 {session_name} 회고를 공유했어요! 🤗*"
+            ),
             DividerBlock(),
             ContextBlock(
                 elements=[{"type": "mrkdwn", "text": "*잘했고 좋았던 점* 🌟"}]

@@ -65,10 +65,10 @@ def get_current_session_info(
 
     Returns:
         Tuple[회차 인덱스, 회차 이름, 남은 시간, 마감 여부]
-        - 회차 인덱스: 0부터 시작하는 회차 인덱스
-        - 회차 이름: 회차 설명 (예: "1회차")
-        - 남은 시간: 마감까지 남은 시간 (timedelta)
-        - 종료 여부: 마감되었는지 여부 (True/False)
+        - session_idx(회차 인덱스): 0부터 시작하는 회차 인덱스
+        - session_name(회차 이름): 회차 설명 (예: "1회차")
+        - remaining_time(남은 시간): 마감까지 남은 시간 (timedelta)
+        - is_active(활성 여부): 커뮤니티 활성화 여부 (True/False)
     """
     if current_time is None:
         current_time = datetime.datetime.now()
@@ -76,21 +76,20 @@ def get_current_session_info(
     # 모든 마감이 완료된 경우
     if current_time >= DUE_DATES[-1]:
         last_idx = len(DUE_DATES) - 1
-        return last_idx, SESSION_NAMES[last_idx], datetime.timedelta(0), True
+        return last_idx, SESSION_NAMES[last_idx], datetime.timedelta(0), False
 
     # 시작 전인 경우
     if current_time < DUE_DATES[0]:
-        return 0, SESSION_NAMES[0], DUE_DATES[0] - current_time, False
+        return 0, SESSION_NAMES[0], DUE_DATES[0] - current_time, True
 
     # 현재 회차 찾기
     for i in range(len(DUE_DATES) - 1):
         if DUE_DATES[i] <= current_time < DUE_DATES[i + 1]:
             next_due = DUE_DATES[i + 1]
             remaining = next_due - current_time
-            return i + 1, SESSION_NAMES[i + 1], remaining, False
+            return i + 1, SESSION_NAMES[i + 1], remaining, True
 
-    # 여기에 도달하면 안 됨
-    return 0, "알 수 없음", datetime.timedelta(0), True
+    raise ValueError("현재 회차를 찾을 수 없습니다.")
 
 
 def format_remaining_time(remaining: datetime.timedelta) -> str:
