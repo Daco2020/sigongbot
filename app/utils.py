@@ -1,11 +1,13 @@
 import random
 import string
-from typing import Any
+from typing import Any, Tuple
 import orjson
 import regex as re
 import datetime
 
 from zoneinfo import ZoneInfo
+
+from app.constants import DUE_DATES, SESSION_NAMES
 
 
 def tz_now(tz: str = "Asia/Seoul") -> datetime.datetime:
@@ -50,3 +52,64 @@ def json_str_to_dict(data: str) -> dict[str, Any]:
 def ts_to_dt(ts: str) -> datetime.datetime:
     """timestamp를 datetime으로 변환합니다."""
     return datetime.datetime.fromtimestamp(float(ts))
+
+
+def get_current_session_info(
+    current_time: datetime.datetime | None = None,
+) -> Tuple[int, str, datetime.timedelta, bool]:
+    """
+    현재 날짜 기준 회차 정보와 마감까지 남은 시간을 반환합니다.
+
+    Args:
+        current_time: 현재 시간 (기본값: 현재 시간)
+
+    Returns:
+        Tuple[회차 인덱스, 회차 이름, 남은 시간, 마감 여부]
+        - 회차 인덱스: 0부터 시작하는 회차 인덱스
+        - 회차 이름: 회차 설명 (예: "1회차")
+        - 남은 시간: 마감까지 남은 시간 (timedelta)
+        - 종료 여부: 마감되었는지 여부 (True/False)
+    """
+    if current_time is None:
+        current_time = datetime.datetime.now()
+
+    # 모든 마감이 완료된 경우
+    if current_time >= DUE_DATES[-1]:
+        last_idx = len(DUE_DATES) - 1
+        return last_idx, SESSION_NAMES[last_idx], datetime.timedelta(0), True
+
+    # 시작 전인 경우
+    if current_time < DUE_DATES[0]:
+        return 0, SESSION_NAMES[0], DUE_DATES[0] - current_time, False
+
+    # 현재 회차 찾기
+    for i in range(len(DUE_DATES) - 1):
+        if DUE_DATES[i] <= current_time < DUE_DATES[i + 1]:
+            next_due = DUE_DATES[i + 1]
+            remaining = next_due - current_time
+            return i + 1, SESSION_NAMES[i + 1], remaining, False
+
+    # 여기에 도달하면 안 됨
+    return 0, "알 수 없음", datetime.timedelta(0), True
+
+
+def format_remaining_time(remaining: datetime.timedelta) -> str:
+    """
+    남은 시간을 읽기 쉬운 형식으로 변환합니다.
+
+    Args:
+        remaining: 남은 시간 (timedelta)
+
+    Returns:
+        읽기 쉬운 형식의 남은 시간
+    """
+    days = remaining.days
+    hours = remaining.seconds // 3600
+    minutes = (remaining.seconds % 3600) // 60
+
+    if days > 0:
+        return f"{days}일 {hours}시간 {minutes}분"
+    elif hours > 0:
+        return f"{hours}시간 {minutes}분"
+    else:
+        return f"{minutes}분"
