@@ -110,6 +110,7 @@ async def handle_view_retrospective_submit(
         )
 
         # Supabase에 데이터 저장
+        # TODO: 회차정보, ts, 채널 아이디 추가
         await create_retrospective(
             user_id=user_id,
             good_points=good_points,
