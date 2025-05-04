@@ -6,7 +6,10 @@ from slack_sdk.models.blocks import (
     InputBlock,
     PlainTextInputElement,
     NumberInputElement,
+    SectionBlock,
 )
+
+from app.utils import format_remaining_time, get_current_session_info
 
 
 async def handle_command_retrospective(
@@ -15,8 +18,18 @@ async def handle_command_retrospective(
     """회고 제출 명령어 처리"""
     await ack()
 
+    current_session_info = get_current_session_info()
+    session_name = current_session_info[1]
+    remaining_time = current_session_info[2]
+    remaining_time_str = format_remaining_time(remaining_time)
+
+    # TODO: 해당 유저가 이미 공유 했다면 모달 안내창 띄우기
+
     # 블록 생성
     blocks = [
+        SectionBlock(
+            text=f"이번 회고 공유 회차는 `{session_name}` 입니다.\n공유 마감까지 남은 시간은 `{remaining_time_str}`입니다.",
+        ),
         InputBlock(
             block_id="good_points",
             label="잘했고 좋았던 점을 알려주세요",
