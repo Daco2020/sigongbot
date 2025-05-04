@@ -4,7 +4,8 @@ MAX_PASS_COUNT = 2
 
 # 고정된 마감일 목록
 DUE_DATES = [
-    datetime.datetime(2025, 5, 13, 5, 0, 0),  # 시작일
+    datetime.datetime(2025, 5, 1, 5, 0, 0),  # 준비회차
+    datetime.datetime(2025, 5, 13, 5, 0, 0),  # 0회차
     datetime.datetime(2025, 5, 20, 5, 0, 0),  # 1회차
     datetime.datetime(2025, 5, 27, 5, 0, 0),  # 2회차
     datetime.datetime(2025, 6, 3, 5, 0, 0),  # 3회차
@@ -22,6 +23,7 @@ DUE_DATES = [
 
 # 각 마감일의 설명
 SESSION_NAMES = [
+    "준비회차",
     "0회차",
     "1회차",
     "2회차",

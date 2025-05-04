@@ -10,6 +10,9 @@ from slack_sdk.models.blocks import (
 )
 
 from app.utils import format_remaining_time, get_current_session_info
+from app.database import check_user_submitted_this_session
+
+from app.constants import DUE_DATES
 
 
 async def handle_command_retrospective(
@@ -18,23 +21,43 @@ async def handle_command_retrospective(
     """회고 제출 명령어 처리"""
     await ack()
 
+    user_id = body["user_id"]
+
+    # 현재 회차 정보 가져오기
     current_session_info = get_current_session_info()
+    session_idx = current_session_info[0]
     session_name = current_session_info[1]
     remaining_time = current_session_info[2]
     remaining_time_str = format_remaining_time(remaining_time)
 
-    # TODO: 해당 유저가 이미 공유 했다면 모달 안내창 띄우기
-    # user_id = body["user_id"]
-    # view = View(
-    #     type="modal",
-    #     title="회고 공유",
-    #     # submit="확인",
-    #     blocks=[
-    #         SectionBlock(
-    #             text=f"<@{user_id}>님은 이미 `{session_name}` 회고를 공유했어요! 🤗",
-    #         ),
-    #     ],
-    # )
+    # 현재 회차의 시작 시간과 종료 시간 계산
+
+    current_due_start = DUE_DATES[session_idx - 1] if session_idx > 0 else DUE_DATES[0]
+    current_due_end = (
+        DUE_DATES[session_idx] if session_idx < len(DUE_DATES) else DUE_DATES[-1]
+    )
+
+    # 사용자가 현재 회차에 이미 회고를 제출했는지 확인
+    already_submitted = await check_user_submitted_this_session(
+        user_id=user_id,
+        start_time=current_due_start,
+        end_time=current_due_end,
+    )
+
+    # 이미 제출한 경우 알림창 표시
+    if already_submitted:
+        view = View(
+            type="modal",
+            title="회고 공유",
+            close="확인",
+            blocks=[
+                SectionBlock(
+                    text=f"<@{user_id}>님은 이미 `{session_name}` 회고를 공유했어요! 🤗",
+                ),
+            ],
+        )
+        await client.views_open(trigger_id=body["trigger_id"], view=view)
+        return
 
     # 블록 생성
     blocks = [

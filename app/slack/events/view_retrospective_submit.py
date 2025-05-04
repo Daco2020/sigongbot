@@ -5,6 +5,8 @@ from slack_sdk.web.async_client import AsyncWebClient
 from slack_sdk.models.blocks import SectionBlock, DividerBlock, ContextBlock
 
 from app.utils import get_current_session_info
+from app.config import settings
+from app.database.retrospective import create_retrospective
 
 
 async def handle_view_retrospective_submit(
@@ -41,13 +43,14 @@ async def handle_view_retrospective_submit(
             .get("value", "")
         )
 
+        # 현재 회차 정보 가져오기
         current_session_info = get_current_session_info()
         session_name = current_session_info[1]
 
         # 메시지 블록 생성
         blocks = [
             SectionBlock(
-                text=f"*<@{user_id}>님이 {session_name} 회고를 공유했어요! 🤗*"
+                text=f"*<@{user_id}>님이 `{session_name}` 회고를 공유했어요! 🤗*"
             ),
             DividerBlock(),
             ContextBlock(
@@ -84,6 +87,21 @@ async def handle_view_retrospective_submit(
             if emotion_reason:
                 blocks.append(SectionBlock(text=emotion_reason))
 
+        # Footer 블록 생성
+        footer_blocks = [
+            DividerBlock(),
+            ContextBlock(
+                elements=[
+                    {
+                        "type": "mrkdwn",
+                        "text": f"회고에 문제가 있다면 <#{settings.SUPPORT_CHANNEL}>에 문의를 남겨 주세요.",
+                    }
+                ]
+            ),
+        ]
+
+        blocks.extend(footer_blocks)
+
         # command_retrospective에서 호출된 채널 ID 가져오기
         original_channel_id = (
             body["view"]["private_metadata"]
@@ -91,14 +109,24 @@ async def handle_view_retrospective_submit(
             else body["user"]["id"]
         )
 
-        # TODO: Supabase 연동 구현 필요
+        # Supabase에 데이터 저장
+        await create_retrospective(
+            user_id=user_id,
+            good_points=good_points,
+            improvements=improvements,
+            learnings=learnings,
+            action_item=action_item,
+            emotion_score=int(emotion_score) if emotion_score else None,
+            emotion_reason=emotion_reason if emotion_reason else None,
+        )
+
         await ack()
 
         # 원래의 채널에 회고 내용 게시
         await client.chat_postMessage(
             channel=original_channel_id,
             blocks=blocks,
-            text="*<@{user_id}>님이 회고를 공유했어요! 🤗*",
+            text=f"*<@{user_id}>님이 `{session_name}` 회고를 공유했어요! 🤗*",
         )
 
         # 로깅 추가

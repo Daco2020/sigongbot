@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     # Channel IDs
     ADMIN_CHANNEL: str = Field(default="C08QJQAPV54")
-    SUPPORT_CHANNEL: str = Field(default="C08QJQAPV54")
+    SUPPORT_CHANNEL: str = Field(default="C08QM0S60LW")
 
     # Supabase Environment
     SUPABASE_URL: str
