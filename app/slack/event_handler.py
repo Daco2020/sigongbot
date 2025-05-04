@@ -36,10 +36,6 @@ async def handle_error(error, body):
     trace = traceback.format_exc()
     logger.debug(dict(body=body, error=trace))
 
-    # 단순 값 에러는 사용자에게 알리지 않습니다.
-    if isinstance(error, ValueError):
-        raise error
-
     # 사용자에게 에러를 알립니다.
     if re.search(r"[\u3131-\uD79D]", str(error)):
         # 한글로 핸들링하는 메시지만 사용자에게 전송합니다.

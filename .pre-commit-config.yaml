@@ -33,4 +33,4 @@ repos:
         pass_filenames: false
         always_run: true
         types: [python]
-        stages: [commit]
+        stages: [pre-commit]
