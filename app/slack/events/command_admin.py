@@ -7,6 +7,8 @@ from slack_sdk.models.blocks import (
     DividerBlock,
     InputBlock,
     PlainTextInputElement,
+    ActionsBlock,
+    ButtonElement,
 )
 
 from app.config import settings
@@ -59,7 +61,18 @@ async def handle_command_admin(
             text="관리자 메뉴에 오신 것을 환영합니다. 수행할 작업을 선택하세요."
         ),
         DividerBlock(),
-        SectionBlock(text="*회고 데이터 관리*"),
+        SectionBlock(text="*특정 멤버를 채널에 초대합니다*"),
+        ActionsBlock(
+            elements=[
+                ButtonElement(
+                    text="채널 초대",
+                    action_id="invite_channel",
+                    value="invite_channel",
+                ),
+            ],
+        ),
+        DividerBlock(),
+        SectionBlock(text="*회고를 수정 또는 삭제합니다*"),
         InputBlock(
             block_id="retrospective_id",
             label="관리할 회고 ID",

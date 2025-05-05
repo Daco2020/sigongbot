@@ -11,6 +11,13 @@ from slack_sdk.models.blocks import SectionBlock
 from slack_sdk.models.views import View
 
 from app.exception import BotException
+from app.slack.events.channel_created import handle_channel_created
+from app.slack.events.member_joined_channel import handle_member_joined_channel
+from app.slack.events.reaction_added import handle_reaction_added
+from app.slack.events.view_invite_channel import (
+    handle_action_view_invite_channel,
+    handle_invite_channel,
+)
 from app.slack.events.command_retrospective import handle_command_retrospective
 from app.slack.events.command_admin import handle_command_admin
 from app.slack.events.message import handle_message
@@ -82,6 +89,19 @@ async def handle_error(error, body):
 
 # message
 app.event("message")(handle_message)
+
+# member_joined_channel
+app.event("member_joined_channel")(handle_member_joined_channel)
+
+# channel_created
+app.event("channel_created")(handle_channel_created)
+
+# reaction_added
+app.event("reaction_added")(handle_reaction_added)
+
+# channel_join
+app.action("invite_channel")(handle_invite_channel)
+app.view("invite_channel_view")(handle_action_view_invite_channel)
 
 # retrospective
 app.command("/공유")(handle_command_retrospective)
