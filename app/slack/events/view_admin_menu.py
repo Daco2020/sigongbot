@@ -219,6 +219,8 @@ async def handle_admin_action_edit(
                     action_id="good_points_input",
                     initial_value=retrospective["good_points"],
                     multiline=True,
+                    min_length=1,
+                    max_length=500,
                 ),
             ),
             InputBlock(
@@ -228,6 +230,8 @@ async def handle_admin_action_edit(
                     action_id="improvements_input",
                     initial_value=retrospective["improvements"],
                     multiline=True,
+                    min_length=1,
+                    max_length=500,
                 ),
             ),
             InputBlock(
@@ -237,6 +241,8 @@ async def handle_admin_action_edit(
                     action_id="learnings_input",
                     initial_value=retrospective["learnings"],
                     multiline=True,
+                    min_length=1,
+                    max_length=500,
                 ),
             ),
             InputBlock(
@@ -246,6 +252,8 @@ async def handle_admin_action_edit(
                     action_id="action_item_input",
                     initial_value=retrospective["action_item"],
                     multiline=True,
+                    min_length=1,
+                    max_length=500,
                 ),
             ),
             InputBlock(
@@ -272,6 +280,8 @@ async def handle_admin_action_edit(
                     action_id="emotion_reason_input",
                     initial_value=retrospective.get("emotion_reason", ""),
                     multiline=True,
+                    min_length=1,
+                    max_length=500,
                 ),
             ),
         ]
