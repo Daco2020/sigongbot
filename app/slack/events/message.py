@@ -22,5 +22,5 @@ async def handle_message(
     ):
         await client.chat_postMessage(
             channel=settings.ADMIN_CHANNEL,
-            text=f"🤓 <@{body['event']['user']}> 님이 문의 채널에 메시지를 남겼습니다. \n```📋 문의 내용:\n\n{body['event']['text']}```\n🤗 문의 내용을 확인해주세요. <@{settings.ADMIN_IDS[0]}>, <@{settings.ADMIN_IDS[1]}>",
+            text=f"👋 <@{body['event']['user']}> 님이 <#{settings.SUPPORT_CHANNEL}> 에 문의를 남겼어요. 👀 <@{settings.ADMIN_IDS[0]}> <@{settings.ADMIN_IDS[1]}>",
         )
