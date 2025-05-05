@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Any
 
 from loguru import logger
 
@@ -8,18 +7,24 @@ from app.database.supabase import supabase
 
 async def create_retrospective(
     user_id: str,
+    session_name: str,
+    slack_channel: str,
+    slack_ts: str,
     good_points: str,
     improvements: str,
     learnings: str,
     action_item: str,
-    emotion_score: Optional[int] = None,
-    emotion_reason: Optional[str] = None,
-) -> Dict[str, Any]:
+    emotion_score: int | None = None,
+    emotion_reason: str | None = None,
+) -> dict[str, Any]:
     """
     회고 데이터를 Supabase에 저장합니다.
 
     Args:
         user_id: 사용자 ID
+        session_name: 회차 정보
+        slack_channel: 슬랙 채널 ID
+        slack_ts: 슬랙 메시지 타임스탬프
         good_points: 잘한 점
         improvements: 개선할 점
         learnings: 배운 점
@@ -31,17 +36,17 @@ async def create_retrospective(
         저장된 회고 데이터
     """
     try:
-        # null 값을 허용하지 않는 필드를 위한 기본값 설정
         data = {
             "user_id": user_id,
+            "session_name": session_name,
+            "slack_channel": slack_channel,
+            "slack_ts": slack_ts,
             "good_points": good_points,
             "improvements": improvements,
             "learnings": learnings,
             "action_item": action_item,
-            "emotion_score": (
-                emotion_score if emotion_score is not None else None
-            ),  # 기본값 None
-            "emotion_reason": emotion_reason if emotion_reason else "",
+            "emotion_score": emotion_score,
+            "emotion_reason": emotion_reason,
         }
 
         # Supabase에 데이터 삽입
@@ -60,7 +65,7 @@ async def create_retrospective(
         raise ValueError(f"회고 저장 중 오류가 발생했습니다: {str(e)}")
 
 
-async def get_retrospective_by_id(retrospective_id: int) -> Dict[str, Any]:
+async def get_retrospective_by_id(retrospective_id: int) -> dict[str, Any]:
     """
     ID로 회고 데이터를 조회합니다.
 
@@ -90,7 +95,7 @@ async def get_retrospective_by_id(retrospective_id: int) -> Dict[str, Any]:
         raise ValueError(f"회고 조회 중 오류가 발생했습니다: {str(e)}")
 
 
-async def get_retrospectives_by_user_id(user_id: str) -> List[Dict[str, Any]]:
+async def get_retrospectives_by_user_id(user_id: str) -> list[dict[str, Any]]:
     """
     사용자 ID로 회고 데이터를 조회합니다.
 
@@ -116,33 +121,26 @@ async def get_retrospectives_by_user_id(user_id: str) -> List[Dict[str, Any]]:
         raise ValueError(f"회고 조회 중 오류가 발생했습니다: {str(e)}")
 
 
-async def check_user_submitted_this_session(
-    user_id: str, start_time: datetime, end_time: datetime
-) -> bool:
+async def check_user_submitted_this_session(user_id: str, session_name: str) -> bool:
     """
-    사용자가 현재 회차에 회고를 제출했는지 확인합니다.
+    사용자가 특정 회차에 회고를 제출했는지 확인합니다.
 
     Args:
         user_id: 사용자 ID
-        start_time: 회차 시작 시간
-        end_time: 회차 종료 시간
+        session_name: 회차 이름
 
     Returns:
         제출 여부 (True/False)
     """
     try:
-        # ISO8601 포맷 문자열로 변환
-        start_time_str = start_time.isoformat()
-        end_time_str = end_time.isoformat()
-
-        result = (
-            await supabase.table("retrospectives")
+        query = (
+            supabase.table("retrospectives")
             .select("id")
             .eq("user_id", user_id)
-            .gte("created_at", start_time_str)
-            .lt("created_at", end_time_str)
-            .execute()
+            .eq("session_name", session_name)
         )
+
+        result = await query.execute()
 
         # 결과가 있으면 제출한 것으로 판단
         return len(result.data) > 0
@@ -154,8 +152,8 @@ async def check_user_submitted_this_session(
 
 
 async def update_retrospective(
-    retrospective_id: int, data: Dict[str, Any]
-) -> Dict[str, Any]:
+    retrospective_id: int, data: dict[str, Any]
+) -> dict[str, Any]:
     """
     회고 데이터를 업데이트합니다.
 
@@ -217,7 +215,7 @@ async def delete_retrospective(retrospective_id: int) -> bool:
         raise ValueError(f"회고 삭제 중 오류가 발생했습니다: {str(e)}")
 
 
-async def get_latest_retrospectives(limit: int = 10) -> List[Dict[str, Any]]:
+async def get_latest_retrospectives(limit: int = 10) -> list[dict[str, Any]]:
     """
     최근 회고 데이터를 조회합니다.
 

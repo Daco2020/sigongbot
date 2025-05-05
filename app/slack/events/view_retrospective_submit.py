@@ -109,25 +109,30 @@ async def handle_view_retrospective_submit(
             else body["user"]["id"]
         )
 
+        await ack()
+
+        # 원래의 채널에 회고 내용 게시
+        response = await client.chat_postMessage(
+            channel=original_channel_id,
+            blocks=blocks,
+            text=f"*<@{user_id}>님이 `{session_name}` 회고를 공유했어요! 🤗*",
+        )
+
+        # 메시지 타임스탬프 가져오기
+        slack_ts = response["ts"]
+
         # Supabase에 데이터 저장
-        # TODO: 회차정보, ts, 채널 아이디 추가
         await create_retrospective(
             user_id=user_id,
+            session_name=session_name,
+            slack_channel=original_channel_id,
+            slack_ts=slack_ts,
             good_points=good_points,
             improvements=improvements,
             learnings=learnings,
             action_item=action_item,
             emotion_score=int(emotion_score) if emotion_score else None,
             emotion_reason=emotion_reason if emotion_reason else None,
-        )
-
-        await ack()
-
-        # 원래의 채널에 회고 내용 게시
-        await client.chat_postMessage(
-            channel=original_channel_id,
-            blocks=blocks,
-            text=f"*<@{user_id}>님이 `{session_name}` 회고를 공유했어요! 🤗*",
         )
 
         # 로깅 추가
