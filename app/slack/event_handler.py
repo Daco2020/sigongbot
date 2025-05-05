@@ -10,6 +10,7 @@ from slack_bolt.response import BoltResponse
 from slack_sdk.models.blocks import SectionBlock
 from slack_sdk.models.views import View
 
+from app.exception import BotException
 from app.slack.events.command_retrospective import handle_command_retrospective
 from app.slack.events.message import handle_message
 from app.slack.events.view_retrospective_submit import handle_view_retrospective_submit
@@ -55,10 +56,16 @@ async def handle_error(error, body):
         )
 
     # 관리자에게 에러를 알립니다.
-    await app.client.chat_postMessage(
-        channel=settings.ADMIN_CHANNEL,
-        text=f"🫢: {error=} 🕊️: {trace=} 👉🏼 💌: {body=}",
-    )
+    if isinstance(error, BotException):
+        await app.client.chat_postMessage(
+            channel=settings.ADMIN_CHANNEL,
+            text=f"🫢: {error=} 🕊️: {trace=} 👉🏼 💌: {body=}",
+        )
+    else:
+        await app.client.chat_postMessage(
+            channel=settings.ADMIN_CHANNEL,
+            text=f"⛈️ 핸들링이 필요한 에러입니다. 🫢: {error=} 🕊️: {trace=} 👉🏼 💌: {body=}",
+        )
 
 
 app.event("message")(handle_message)

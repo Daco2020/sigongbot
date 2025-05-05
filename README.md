@@ -52,10 +52,10 @@ async def handle_shortcut_quick_retrospective(...)
 TODO:
 - 에러 핸들링 v
 - 에러 로그 관리자 채널에 알림 v 
-- supabase 테이블 컬럼 추가
-  - 회차정보
-  - 채널
-  - 메시지 아이디(ts)
+- supabase 테이블 컬럼 추가 v
+  - 회차정보 v
+  - 슬랙 채널 v
+  - 슬랙 메시지 ts v
 - 서버 띄우기
 - db di 리팩터링
 - crud 동작 확인
