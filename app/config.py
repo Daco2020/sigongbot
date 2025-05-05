@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     ADMIN_CHANNEL: str = Field(default="C08QJQAPV54")
     SUPPORT_CHANNEL: str = Field(default="C08QM0S60LW")
 
+    # Admin IDs
+    ADMIN_IDS: list[str]
+
     # Supabase Environment
     SUPABASE_URL: str
     SUPABASE_KEY: str
