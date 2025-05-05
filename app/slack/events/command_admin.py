@@ -47,13 +47,11 @@ async def handle_command_admin(
         retro_session = retro["session_name"]
         created_at = (
             retro["created_at"].split("T")[0]
-            if "T" in retro["created_at"]
-            else retro["created_at"]
+            + " "
+            + retro["created_at"].split("T")[1].split(".")[0]
         )
 
-        options_text += (
-            f"{retro_id}: {retro_session} - <@{retro_user}> ({created_at})\n"
-        )
+        options_text += f"```회고ID: {retro_id} | {retro_session} | <@{retro_user}> | {created_at}\n```"
 
     # 관리자 메뉴 모달 생성
     blocks = [

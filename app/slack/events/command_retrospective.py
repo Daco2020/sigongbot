@@ -59,6 +59,8 @@ async def handle_command_retrospective(
             element=PlainTextInputElement(
                 action_id="good_points_input",
                 multiline=True,
+                min_length=1,
+                max_length=500,
             ),
         ),
         InputBlock(
@@ -67,6 +69,8 @@ async def handle_command_retrospective(
             element=PlainTextInputElement(
                 action_id="improvements_input",
                 multiline=True,
+                min_length=1,
+                max_length=500,
             ),
         ),
         InputBlock(
@@ -75,6 +79,8 @@ async def handle_command_retrospective(
             element=PlainTextInputElement(
                 action_id="learnings_input",
                 multiline=True,
+                min_length=1,
+                max_length=500,
             ),
         ),
         InputBlock(
@@ -83,6 +89,8 @@ async def handle_command_retrospective(
             element=PlainTextInputElement(
                 action_id="action_item_input",
                 multiline=True,
+                min_length=1,
+                max_length=500,
             ),
         ),
         InputBlock(
@@ -103,6 +111,8 @@ async def handle_command_retrospective(
             element=PlainTextInputElement(
                 action_id="emotion_reason_input",
                 multiline=True,
+                min_length=1,
+                max_length=500,
             ),
         ),
     ]

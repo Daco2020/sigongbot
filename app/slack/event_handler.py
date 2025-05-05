@@ -22,6 +22,10 @@ from app.slack.events.view_admin_menu import (
     handle_view_admin_delete_retrospective,
     handle_view_admin_edit_retrospective,
 )
+from app.slack.events.command_my_retrospectives import handle_command_my_retrospectives
+from app.slack.events.action_view_retrospective_detail import (
+    handle_action_view_retrospective_detail,
+)
 
 
 app = SlackBoltAsyncApp()
@@ -82,6 +86,10 @@ app.event("message")(handle_message)
 # retrospective
 app.command("/공유")(handle_command_retrospective)
 app.view("retrospective_submit")(handle_view_retrospective_submit)
+
+# my retrospectives
+app.command("/내회고")(handle_command_my_retrospectives)
+app.action("view_retrospective_detail")(handle_action_view_retrospective_detail)
 
 # admin
 app.command("/관리자")(handle_command_admin)  # 관리자 메뉴 호출
