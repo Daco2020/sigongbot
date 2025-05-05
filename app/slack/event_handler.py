@@ -12,8 +12,16 @@ from slack_sdk.models.views import View
 
 from app.exception import BotException
 from app.slack.events.command_retrospective import handle_command_retrospective
+from app.slack.events.command_admin import handle_command_admin
 from app.slack.events.message import handle_message
 from app.slack.events.view_retrospective_submit import handle_view_retrospective_submit
+from app.slack.events.view_admin_menu import (
+    handle_view_admin_menu,
+    handle_admin_action_delete,
+    handle_admin_action_edit,
+    handle_view_admin_delete_retrospective,
+    handle_view_admin_edit_retrospective,
+)
 
 
 app = SlackBoltAsyncApp()
@@ -68,6 +76,23 @@ async def handle_error(error, body):
         )
 
 
+# message
 app.event("message")(handle_message)
+
+# retrospective
 app.command("/공유")(handle_command_retrospective)
 app.view("retrospective_submit")(handle_view_retrospective_submit)
+
+# admin
+app.command("/관리자")(handle_command_admin)  # 관리자 메뉴 호출
+app.view("admin_menu")(handle_view_admin_menu)  # 관리자 메뉴 출력
+app.view("admin_edit_retrospective")(
+    handle_view_admin_edit_retrospective
+)  # 회고 수정 제출 처리
+app.view("admin_delete_retrospective")(
+    handle_view_admin_delete_retrospective
+)  # 회고 삭제 모달 처리
+
+# 회고 관리 액션
+app.action("edit_retrospective")(handle_admin_action_edit)  # 회고 수정 버튼
+app.action("delete_retrospective")(handle_admin_action_delete)  # 회고 삭제 버튼
