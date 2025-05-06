@@ -8,6 +8,8 @@ from app.database.pomodoro import fetch_active_pomodoros, update_pomodoro_status
 from app.slack.events.view_pomodoro_submit import generate_guide_message
 from slack_sdk.web.async_client import AsyncWebClient
 
+from app.utils import get_persona_profile
+
 
 class PomodoroScheduler:
     def __init__(self, client: AsyncWebClient):
@@ -78,13 +80,21 @@ class PomodoroScheduler:
             slack_ts = pomodoro["slack_ts"]
             slack_channel = settings.POMODORO_CHANNEL_ID
 
-            # 작업/휴식 시간 계산 TODO: 테스트로 간격 조정
+            # 페르소나 프로필 정보 가져오기
+            persona_profile = get_persona_profile(guide_persona)
+
+            # 작업/휴식 시간 계산
             if duration_type == "25_5":
-                work_minutes = 1
-                break_minutes = 1
+                work_minutes = 25  # 실제 사용 시에는 25분으로 설정
+                break_minutes = 5  # 실제 사용 시에는 5분으로 설정
             else:  # 50_10
-                work_minutes = 2
-                break_minutes = 2
+                work_minutes = 50  # 실제 사용 시에는 50분으로 설정
+                break_minutes = 10  # 실제 사용 시에는 10분으로 설정
+
+            # 테스트 모드에서는 더 짧은 시간으로 설정
+            if settings.ENV == "dev":
+                work_minutes = 1  # 개발 환경에서는 1분으로 설정
+                break_minutes = 1  # 개발 환경에서는 1분으로 설정
 
             # 작업 시간 대기
             await asyncio.sleep(work_minutes * 60)
@@ -101,8 +111,13 @@ class PomodoroScheduler:
                 break_end_time=break_end_time,
             )
 
+            # 페르소나에 맞는 프로필로 메시지 전송
             await self.client.chat_postMessage(
-                channel=slack_channel, thread_ts=slack_ts, text=break_message
+                channel=slack_channel,
+                thread_ts=slack_ts,
+                text=break_message,
+                username=persona_profile["username"],
+                icon_url=persona_profile["icon_url"],
             )
 
             # 휴식 시간 대기
@@ -123,8 +138,13 @@ class PomodoroScheduler:
                     is_complete=True,
                 )
 
+                # 페르소나에 맞는 프로필로 메시지 전송
                 await self.client.chat_postMessage(
-                    channel=slack_channel, thread_ts=slack_ts, text=complete_message
+                    channel=slack_channel,
+                    thread_ts=slack_ts,
+                    text=complete_message,
+                    username=persona_profile["username"],
+                    icon_url=persona_profile["icon_url"],
                 )
 
                 # 상태 업데이트
@@ -142,8 +162,13 @@ class PomodoroScheduler:
                     work_end_time=next_work_end_time,
                 )
 
+                # 페르소나에 맞는 프로필로 메시지 전송
                 await self.client.chat_postMessage(
-                    channel=slack_channel, thread_ts=slack_ts, text=next_session_message
+                    channel=slack_channel,
+                    thread_ts=slack_ts,
+                    text=next_session_message,
+                    username=persona_profile["username"],
+                    icon_url=persona_profile["icon_url"],
                 )
 
                 # 세션 업데이트

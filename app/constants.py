@@ -39,3 +39,22 @@ SESSION_NAMES = [
     "12회차",
     "추가회차",
 ]
+# 페르소나별 프로필 정보
+PERSONA_PROFILES = {
+    "rival_male_friend": {
+        "username": "라이벌 동기",
+        "icon_url": "https://fcybhtipvkrsrelbsghv.supabase.co/storage/v1/object/public/assets//rival_male_friend_v2.jpg",
+    },
+    "cheerful_female_junior": {
+        "username": "해맑은 후배",
+        "icon_url": "https://fcybhtipvkrsrelbsghv.supabase.co/storage/v1/object/public/assets//cheerful_female_junior.jpg",
+    },
+    "sweet_male_mentor": {
+        "username": "스윗한 멘토",
+        "icon_url": "https://fcybhtipvkrsrelbsghv.supabase.co/storage/v1/object/public/assets//sweet_male_mentor.jpg",
+    },
+    "strict_female_boss": {
+        "username": "깐깐한 상사",
+        "icon_url": "https://fcybhtipvkrsrelbsghv.supabase.co/storage/v1/object/public/assets//strict_female_boss.jpg",
+    },
+}

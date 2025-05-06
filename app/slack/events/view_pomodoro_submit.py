@@ -11,12 +11,15 @@ from slack_sdk.models.blocks import (
 from app.database.pomodoro import create_pomodoro
 from app.slack.events.command_pomodoro import calculate_total_time
 from app.config import settings
+from app.utils import get_persona_profile
 
 
 async def handle_view_pomodoro_submit(
     ack: AsyncAck, body: ViewBodyType, client: AsyncWebClient, view: ViewType
 ):
     """뽀모도로 설정 모달 제출 처리"""
+    await ack()
+
     user_id = body["user"]["id"]
     pomodoro_channel_id = settings.POMODORO_CHANNEL_ID
 
@@ -38,6 +41,11 @@ async def handle_view_pomodoro_submit(
         break_minutes = 10
         duration_text = "50분 작업 + 10분 휴식"
 
+    # 테스트 모드에서는 더 짧은 시간으로 설정
+    if settings.ENV == "dev":
+        work_minutes = 1  # 개발 환경에서는 1분으로 설정
+        break_minutes = 1  # 개발 환경에서는 1분으로 설정
+
     # 세션 수
     sessions = int(values["sessions"]["sessions_select"]["selected_option"]["value"])
 
@@ -48,6 +56,9 @@ async def handle_view_pomodoro_submit(
     guide_text = values["guide_persona"]["guide_persona_select"]["selected_option"][
         "text"
     ]["text"]
+
+    # 페르소나 프로필 정보 가져오기
+    persona_profile = get_persona_profile(guide_persona)
 
     # 참가자 (선택 사항)
     participants = []
@@ -106,7 +117,11 @@ async def handle_view_pomodoro_submit(
         )
 
         await client.chat_postMessage(
-            channel=pomodoro_channel_id, thread_ts=slack_ts, text=guide_message
+            channel=pomodoro_channel_id,
+            thread_ts=slack_ts,
+            text=guide_message,
+            username=persona_profile["username"],
+            icon_url=persona_profile["icon_url"],
         )
 
         # 데이터베이스에 뽀모도로 세션 저장
@@ -118,8 +133,6 @@ async def handle_view_pomodoro_submit(
             participants=participants,
             slack_ts=slack_ts,
         )
-
-        await ack()
 
     except Exception as e:
         logger.error(f"뽀모도로 세션 생성 실패 - User: {user_id}, Error: {str(e)}")

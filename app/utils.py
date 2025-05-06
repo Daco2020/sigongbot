@@ -8,6 +8,7 @@ import datetime
 from zoneinfo import ZoneInfo
 
 from app.constants import DUE_DATES, SESSION_NAMES
+from app.constants import PERSONA_PROFILES
 
 
 def tz_now(tz: str = "Asia/Seoul") -> datetime.datetime:
@@ -112,3 +113,14 @@ def format_remaining_time(remaining: datetime.timedelta) -> str:
         return f"{hours}시간 {minutes}분"
     else:
         return f"{minutes}분"
+
+
+def get_persona_profile(guide_persona: str) -> dict[str, str]:
+    """페르소나에 따른 프로필 정보를 반환합니다."""
+    return PERSONA_PROFILES.get(
+        guide_persona,
+        {
+            "username": "뽀모도로 봇",
+            "icon_url": "https://fcybhtipvkrsrelbsghv.supabase.co/storage/v1/object/public/assets//test.jpg",
+        },
+    )
