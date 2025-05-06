@@ -34,6 +34,10 @@ from app.slack.events.action_view_retrospective_detail import (
     handle_action_view_retrospective_detail,
 )
 
+# 뽀모도로 관련 이벤트 핸들러 추가
+from app.slack.events.command_pomodoro import handle_command_pomodoro
+from app.slack.events.view_pomodoro_submit import handle_view_pomodoro_submit
+
 
 app = SlackBoltAsyncApp()
 
@@ -124,3 +128,7 @@ app.view("admin_delete_retrospective")(
 # 회고 관리 액션
 app.action("edit_retrospective")(handle_admin_action_edit)  # 회고 수정 버튼
 app.action("delete_retrospective")(handle_admin_action_delete)  # 회고 삭제 버튼
+
+# 뽀모도로 명령어 및 제출 처리
+app.command("/뽀모도로")(handle_command_pomodoro)  # 뽀모도로 메뉴 호출
+app.view("pomodoro_submit")(handle_view_pomodoro_submit)  # 뽀모도로 설정 제출

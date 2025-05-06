@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     # Channel IDs
     ADMIN_CHANNEL: str = Field(default="C08QJQAPV54")
     SUPPORT_CHANNEL: str = Field(default="C08QM0S60LW")
+    POMODORO_CHANNEL_ID: str = Field(default="C08QJQAPV54")  # TODO: 채널 변경하기
 
     # Admin IDs
     ADMIN_IDS: list[str]
