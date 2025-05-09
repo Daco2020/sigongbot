@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 import asyncio
 from app.config import settings
 from loguru import logger
@@ -8,7 +8,7 @@ from app.database.pomodoro import fetch_active_pomodoros, update_pomodoro_status
 from app.slack.events.view_pomodoro_submit import generate_guide_message
 from slack_sdk.web.async_client import AsyncWebClient
 
-from app.utils import get_persona_profile
+from app.utils import get_persona_profile, tz_now
 
 
 class PomodoroScheduler:
@@ -103,7 +103,7 @@ class PomodoroScheduler:
             participants = pomodoro["participants"]
 
             # 작업 완료, 휴식 시간 안내
-            break_end_time = datetime.now() + timedelta(minutes=break_minutes)
+            break_end_time = tz_now() + timedelta(minutes=break_minutes)
 
             break_message = generate_guide_message(
                 guide_persona=guide_persona,
@@ -157,7 +157,7 @@ class PomodoroScheduler:
 
             else:
                 # 다음 세션 시작
-                next_work_end_time = datetime.now() + timedelta(minutes=work_minutes)
+                next_work_end_time = tz_now() + timedelta(minutes=work_minutes)
 
                 next_session_message = generate_guide_message(
                     guide_persona=guide_persona,

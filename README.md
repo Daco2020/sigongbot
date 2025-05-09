@@ -47,7 +47,73 @@ async def handle_shortcut_quick_retrospective(...)
 - 이벤트 타입을 즉시 파악 가능
 - 기능별 구분이 명확
 - 향후 확장성을 고려한 구조
+
+## 서버 디버깅 가이드
+
+### 서버 접속
+```bash
+ssh root@[서버IP] -p 22
 ```
+
+### 도커 컨테이너 상태 확인
+```bash
+# 실행 중인 컨테이너 목록 확인
+docker-compose -f docker-compose.prod.yaml ps
+
+# 현재 활성화된 서버(blue/green) 확인
+cat nginx/conf.d/default.conf
+```
+
+### 로그 확인
+1. 애플리케이션 로그
+```bash
+# blue 서버 로그 (실시간)
+docker-compose -f docker-compose.prod.yaml logs -f blue
+
+# green 서버 로그 (실시간)
+docker-compose -f docker-compose.prod.yaml logs -f green
+
+# 마지막 100줄만 확인
+docker-compose -f docker-compose.prod.yaml logs --tail=100 [blue|green]
+```
+
+2. nginx 로그
+```bash
+docker-compose -f docker-compose.prod.yaml logs -f nginx
+```
+
+### 컨테이너 내부 접속
+```bash
+# blue 서버 접속
+docker-compose -f docker-compose.prod.yaml exec blue sh
+
+# green 서버 접속
+docker-compose -f docker-compose.prod.yaml exec green sh
+
+# nginx 접속
+docker-compose -f docker-compose.prod.yaml exec nginx sh
+```
+
+### 문제 해결
+```bash
+# 환경 변수 확인
+docker-compose -f docker-compose.prod.yaml exec [blue|green] env
+
+# 컨테이너 재시작
+docker-compose -f docker-compose.prod.yaml restart [blue|green]
+
+# 서비스 재빌드
+docker-compose -f docker-compose.prod.yaml up -d --build [blue|green]
+
+# 전체 시스템 상태 확인
+docker stats
+```
+
+### 유용한 팁
+- 실시간 로그 확인 시 `-f` 옵션 사용
+- 특정 서비스에 문제가 있을 경우 해당 서비스만 재시작
+- 환경 변수 문제가 의심될 경우 컨테이너 내부에서 `env` 명령어로 확인
+- nginx 설정 변경 후에는 nginx 컨테이너 재시작 필요
 
 TODO:
 - 에러 핸들링 ✅

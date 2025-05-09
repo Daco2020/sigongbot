@@ -7,11 +7,12 @@ from slack_sdk.models.blocks import (
     SectionBlock,
     ContextBlock,
 )
+from zoneinfo import ZoneInfo
 
 from app.database.pomodoro import create_pomodoro
 from app.slack.events.command_pomodoro import calculate_total_time
 from app.config import settings
-from app.utils import get_persona_profile
+from app.utils import get_persona_profile, tz_now
 
 
 async def handle_view_pomodoro_submit(
@@ -76,8 +77,7 @@ async def handle_view_pomodoro_submit(
         participants_mention = " ".join([f"<@{p}>" for p in participants])
 
         # 현재 시간 기준으로 첫 번째 작업 시간 계산
-        now = datetime.now()
-        work_end_time = now + timedelta(minutes=work_minutes)
+        work_end_time = tz_now() + timedelta(minutes=work_minutes)
         break_end_time = work_end_time + timedelta(minutes=break_minutes)
         # 시작 메시지 생성
         message_blocks = [
@@ -155,6 +155,12 @@ def generate_guide_message(
     # 시간 형식 변환
     time_format = "%H:%M"
     participants_mention = " ".join([f"<@{p}>" for p in participants])
+
+    # UTC를 KST로 변환
+    if work_end_time:
+        work_end_time = work_end_time.astimezone(ZoneInfo("Asia/Seoul"))
+    if break_end_time:
+        break_end_time = break_end_time.astimezone(ZoneInfo("Asia/Seoul"))
 
     if is_complete:
         # 세션 완료 메시지
