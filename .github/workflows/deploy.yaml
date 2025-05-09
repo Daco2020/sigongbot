@@ -135,6 +135,8 @@ jobs:
             SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}
             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
             SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
+            ADMIN_IDS=${{ secrets.ADMIN_IDS }}
+            ENV=${{ secrets.ENV }}
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             EOL
             
@@ -174,6 +176,6 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
-            -d '{"channel": "C08QJQAPV54", "text": "🎉 Sigongbot 서버 배포가 완료되었습니다! 😉"}' \
+            -d '{"channel": "C08QJQAPV54", "text": "🎉 시공봇 서버 배포가 완료되었습니다! 😉"}' \
             https://slack.com/api/chat.postMessage
 

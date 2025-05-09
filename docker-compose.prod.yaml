@@ -24,8 +24,8 @@ services:
       - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
-    depends_on:
-      - db
+      - ADMIN_IDS=${ADMIN_IDS}
+      - ENV=${ENV}
     restart: always
 
   green:
@@ -38,7 +38,7 @@ services:
       - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
-    depends_on:
-      - db
+      - ADMIN_IDS=${ADMIN_IDS}
+      - ENV=${ENV}
     restart: always
  
