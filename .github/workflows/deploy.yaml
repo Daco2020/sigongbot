@@ -1,179 +1,179 @@
-# name: CI/CD Pipeline
+name: CI/CD Pipeline
 
-# on:
-#   push:
-#     branches:
-#       - main
+on:
+  push:
+    branches:
+      - main
 
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       # 1. Checkout source code
-#       - name: Checkout source code
-#         uses: actions/checkout@v3
+    steps:
+      # 1. Checkout source code
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-#       # 2. Set up Docker Buildx
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v2
+      # 2. Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-#       # 3. Cache Docker layers
-#       - name: Cache Docker layers
-#         uses: actions/cache@v3
-#         with:
-#           path: /home/runner/.buildx-cache
-#           key: ${{ runner.os }}-buildx-${{ github.sha }}
-#           restore-keys: |
-#             ${{ runner.os }}-buildx-
+      # 3. Cache Docker layers
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /home/runner/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-#       # 4. Login to DockerHub
-#       - name: Login to DockerHub
-#         uses: docker/login-action@v2
-#         with:
-#           username: ${{ secrets.DOCKERHUB_USERNAME }}
-#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # 4. Login to DockerHub
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-#       # 5. Build and push Docker image
-#       - name: Build and push Docker image
-#         uses: docker/build-push-action@v4
-#         with:
-#           context: .
-#           push: true
-#           tags: |
-#             ${{ secrets.DOCKERHUB_USERNAME }}/sigongbot-server:latest
-#             ${{ secrets.DOCKERHUB_USERNAME }}/sigongbot-server:${{ github.sha }}
-#           cache-from: type=local,src=/home/runner/.buildx-cache
-#           cache-to: type=local,dest=/home/runner/.buildx-cache
+      # 5. Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/sigongbot-server:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/sigongbot-server:${{ github.sha }}
+          cache-from: type=local,src=/home/runner/.buildx-cache
+          cache-to: type=local,dest=/home/runner/.buildx-cache
 
-#       # 6. Copy configuration files
-#       - name: Copy configuration files
-#         uses: appleboy/scp-action@master
-#         with:
-#           host: ${{ secrets.WAS_HOST }}
-#           username: ${{ secrets.WAS_USERNAME }}
-#           key: ${{ secrets.SSH_KEY }}
-#           port: ${{ secrets.WAS_SSH_PORT }}
-#           source: "nginx/conf.d/default.conf,docker-compose.prod.yaml"
-#           target: "/root"
-#           strip_components: 0
-#           timeout: 120s
-#           command_timeout: 30m
+      # 6. Copy configuration files
+      - name: Copy configuration files
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          source: "nginx/conf.d/default.conf,docker-compose.prod.yaml"
+          target: "/root"
+          strip_components: 0
+          timeout: 120s
+          command_timeout: 30m
 
-#       # 7. Deploy to remote server
-#       - name: Deploy to remote server
-#         uses: appleboy/ssh-action@v0.1.6
-#         with:
-#           host: ${{ secrets.WAS_HOST }}
-#           username: ${{ secrets.WAS_USERNAME }}
-#           key: ${{ secrets.SSH_KEY }}
-#           port: ${{ secrets.WAS_SSH_PORT }}
-#           script: |
-#             # Docker 설치 확인 및 설치
-#             if ! command -v docker &> /dev/null; then
-#                 echo "Docker 설치 중..."
-#                 sudo apt update
-#                 sudo apt install -y docker.io
-#             fi
+      # 7. Deploy to remote server
+      - name: Deploy to remote server
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          script: |
+            # Docker 설치 확인 및 설치
+            if ! command -v docker &> /dev/null; then
+                echo "Docker 설치 중..."
+                sudo apt update
+                sudo apt install -y docker.io
+            fi
 
-#             # Docker Compose 설치 확인 및 설치
-#             if ! command -v docker-compose &> /dev/null; then
-#                 echo "Docker Compose 설치 중..."
-#                 sudo apt update
-#                 sudo apt install -y docker-compose
-#             fi
+            # Docker Compose 설치 확인 및 설치
+            if ! command -v docker-compose &> /dev/null; then
+                echo "Docker Compose 설치 중..."
+                sudo apt update
+                sudo apt install -y docker-compose
+            fi
 
-#             # Certbot 설치 확인 및 설치
-#             if ! command -v certbot &> /dev/null; then
-#                 echo "Certbot 설치 중..."
-#                 sudo apt update
-#                 sudo apt install -y certbot
-#             fi
+            # Certbot 설치 확인 및 설치
+            if ! command -v certbot &> /dev/null; then
+                echo "Certbot 설치 중..."
+                sudo apt update
+                sudo apt install -y certbot
+            fi
 
-#             # SSL 인증서 상태 확인 및 갱신
-#             echo "SSL 인증서 상태 확인 중..."
-#             if sudo certbot certificates | grep "INVALID: EXPIRED"; then
-#                 echo "만료된 인증서 발견. 갱신 시도 중..."
-#                 docker-compose -f /root/docker-compose.prod.yaml stop nginx
-#                 sudo certbot renew --force-renewal
-#                 docker-compose -f /root/docker-compose.prod.yaml up -d nginx
-#             fi
+            # SSL 인증서 상태 확인 및 갱신
+            echo "SSL 인증서 상태 확인 중..."
+            if sudo certbot certificates | grep "INVALID: EXPIRED"; then
+                echo "만료된 인증서 발견. 갱신 시도 중..."
+                docker-compose -f /root/docker-compose.prod.yaml stop nginx
+                sudo certbot renew --force-renewal
+                docker-compose -f /root/docker-compose.prod.yaml up -d nginx
+            fi
 
-#             # SSL 인증서 자동 갱신 스크립트 생성
-#             cat > /root/renew-cert.sh << 'EOL'
-#             #!/bin/bash
-#             certbot renew --quiet
-#             if [ $? -eq 0 ]; then
-#                 docker-compose -f /root/docker-compose.prod.yaml exec -T nginx nginx -s reload
-#                 echo "$(date): 인증서 갱신 성공" >> /var/log/certbot-renew.log
-#             else
-#                 echo "$(date): 인증서 갱신 실패" >> /var/log/certbot-renew.log
-#             fi
-#             EOL
+            # SSL 인증서 자동 갱신 스크립트 생성
+            cat > /root/renew-cert.sh << 'EOL'
+            #!/bin/bash
+            certbot renew --quiet
+            if [ $? -eq 0 ]; then
+                docker-compose -f /root/docker-compose.prod.yaml exec -T nginx nginx -s reload
+                echo "$(date): 인증서 갱신 성공" >> /var/log/certbot-renew.log
+            else
+                echo "$(date): 인증서 갱신 실패" >> /var/log/certbot-renew.log
+            fi
+            EOL
 
-#             # 스크립트 실행 권한 부여
-#             chmod +x /root/renew-cert.sh
+            # 스크립트 실행 권한 부여
+            chmod +x /root/renew-cert.sh
 
-#             # 자동 갱신 크론 작업 설정 (기존 작업 제거 후 재설정)
-#             (crontab -l 2>/dev/null | grep -v "renew-cert.sh" ; echo "0 0,12 * * * /root/renew-cert.sh") | crontab -
+            # 자동 갱신 크론 작업 설정 (기존 작업 제거 후 재설정)
+            (crontab -l 2>/dev/null | grep -v "renew-cert.sh" ; echo "0 0,12 * * * /root/renew-cert.sh") | crontab -
 
-#             # 작업 디렉토리로 이동
-#             cd /root
+            # 작업 디렉토리로 이동
+            cd /root
             
-#             # SSL 인증서 디렉토리 권한 설정
-#             sudo chown -R root:root /etc/letsencrypt
-#             sudo find /etc/letsencrypt/archive -type f -exec chmod 644 {} \;
-#             sudo find /etc/letsencrypt/live -type l -exec chmod 644 {} \;
-#             sudo chmod 755 /etc/letsencrypt/live
-#             sudo chmod 755 /etc/letsencrypt/archive
+            # SSL 인증서 디렉토리 권한 설정
+            sudo chown -R root:root /etc/letsencrypt
+            sudo find /etc/letsencrypt/archive -type f -exec chmod 644 {} \;
+            sudo find /etc/letsencrypt/live -type l -exec chmod 644 {} \;
+            sudo chmod 755 /etc/letsencrypt/live
+            sudo chmod 755 /etc/letsencrypt/archive
             
-#             echo "무중단 배포 시작..."
+            echo "무중단 배포 시작..."
             
-#             # 환경 변수 파일 생성
-#             cat > .env << EOL
-#             SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
-#             SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}
-#             SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-#             SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
-#             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
-#             EOL
+            # 환경 변수 파일 생성
+            cat > .env << EOL
+            SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
+            SLACK_APP_TOKEN=${{ secrets.SLACK_APP_TOKEN }}
+            SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+            SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            EOL
             
-#             # 현재 활성화된 서버 확인 (docker-compose 사용)
-#             CURRENT=$(docker-compose -f docker-compose.prod.yaml ps | grep -o "blue\|green" | head -n 1)
+            # 현재 활성화된 서버 확인 (docker-compose 사용)
+            CURRENT=$(docker-compose -f docker-compose.prod.yaml ps | grep -o "blue\|green" | head -n 1)
             
-#             if [ "$CURRENT" = "blue" ]; then
-#               # Blue가 활성화되어 있으면 Green으로 배포
-#               export GREEN_VERSION=${{ github.sha }}
-#               docker-compose -f docker-compose.prod.yaml up -d nginx green
+            if [ "$CURRENT" = "blue" ]; then
+              # Blue가 활성화되어 있으면 Green으로 배포
+              export GREEN_VERSION=${{ github.sha }}
+              docker-compose -f docker-compose.prod.yaml up -d nginx green
               
-#               sleep 10
+              sleep 10
               
-#               sed -i 's/server blue:8000/server green:8000/' nginx/conf.d/default.conf
-#               docker-compose -f docker-compose.prod.yaml exec -T nginx nginx -s reload
+              sed -i 's/server blue:8000/server green:8000/' nginx/conf.d/default.conf
+              docker-compose -f docker-compose.prod.yaml exec -T nginx nginx -s reload
               
-#               docker-compose -f docker-compose.prod.yaml stop blue
-#             else
-#               # Green이 활성화되어 있으면 Blue로 배포
-#               export BLUE_VERSION=${{ github.sha }}
-#               docker-compose -f docker-compose.prod.yaml up -d nginx blue
+              docker-compose -f docker-compose.prod.yaml stop blue
+            else
+              # Green이 활성화되어 있으면 Blue로 배포
+              export BLUE_VERSION=${{ github.sha }}
+              docker-compose -f docker-compose.prod.yaml up -d nginx blue
               
-#               sleep 10
+              sleep 10
               
-#               sed -i 's/server green:8000/server blue:8000/' nginx/conf.d/default.conf
-#               docker-compose -f docker-compose.prod.yaml exec -T nginx nginx -s reload
+              sed -i 's/server green:8000/server blue:8000/' nginx/conf.d/default.conf
+              docker-compose -f docker-compose.prod.yaml exec -T nginx nginx -s reload
               
-#               docker-compose -f docker-compose.prod.yaml stop green
-#             fi
+              docker-compose -f docker-compose.prod.yaml stop green
+            fi
 
-#             # 이미지 정리 (사용하지 않는 이미지, 컨테이너, 네트워크만 정리)
-#             docker system prune -af
+            # 이미지 정리 (사용하지 않는 이미지, 컨테이너, 네트워크만 정리)
+            docker system prune -af
 
-#       # 8. Send a message to Slack
-#       # TODO: channel 환경변수로 변경 필요
-#       - name: Send message to Slack
-#         run: |
-#           curl -H "Content-Type: application/json" \
-#             -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
-#             -d '{"channel": "C08QJQAPV54", "text": "🎉 Sigongbot 서버 배포가 완료되었습니다! 😉"}' \
-#             https://slack.com/api/chat.postMessage
+      # 8. Send a message to Slack
+      # TODO: channel 환경변수로 변경 필요
+      - name: Send message to Slack
+        run: |
+          curl -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
+            -d '{"channel": "C08QJQAPV54", "text": "🎉 Sigongbot 서버 배포가 완료되었습니다! 😉"}' \
+            https://slack.com/api/chat.postMessage
 
