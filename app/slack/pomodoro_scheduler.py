@@ -99,6 +99,9 @@ class PomodoroScheduler:
             # 작업 시간 대기
             await asyncio.sleep(work_minutes * 60)
 
+            # 참여자 목록 가져오기
+            participants = pomodoro["participants"]
+
             # 작업 완료, 휴식 시간 안내
             break_end_time = datetime.now() + timedelta(minutes=break_minutes)
 
@@ -108,6 +111,7 @@ class PomodoroScheduler:
                 total_sessions=total_sessions,
                 is_start=False,
                 is_break=True,
+                participants=participants,
                 break_end_time=break_end_time,
             )
 
@@ -136,6 +140,7 @@ class PomodoroScheduler:
                     is_start=False,
                     is_break=False,
                     is_complete=True,
+                    participants=participants,
                 )
 
                 # 페르소나에 맞는 프로필로 메시지 전송
@@ -159,6 +164,7 @@ class PomodoroScheduler:
                     session_num=next_session,
                     total_sessions=total_sessions,
                     is_start=True,
+                    participants=participants,
                     work_end_time=next_work_end_time,
                 )
 

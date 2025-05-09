@@ -112,6 +112,7 @@ async def handle_view_pomodoro_submit(
             session_num=1,
             total_sessions=sessions,
             is_start=True,
+            participants=participants,
             work_end_time=work_end_time,
             break_end_time=break_end_time,
         )
@@ -144,6 +145,7 @@ def generate_guide_message(
     session_num: int,
     total_sessions: int,
     is_start: bool,
+    participants: list[str],
     work_end_time: datetime | None = None,
     is_break: bool = False,
     break_end_time: datetime | None = None,
@@ -152,43 +154,47 @@ def generate_guide_message(
     """가이드 유형에 따른 메시지를 생성합니다."""
     # 시간 형식 변환
     time_format = "%H:%M"
+    participants_mention = " ".join([f"<@{p}>" for p in participants])
 
     if is_complete:
         # 세션 완료 메시지
         if guide_persona == "strict_female_boss":
-            return "모든 뽀모도로 세션이 완료되었습니다. 오늘 업무 잘 하셨네요. 내일도 이 페이스를 유지하세요."
+            message = "모든 뽀모도로 세션이 끝났어. 흥, 오늘 꽤 잘 했네. 내일도 이 페이스를 유지하라고. 자 잠깐!! 벌써 가려고..? 오늘 나랑 같이 한 소감은 말해줘야지!"
         elif guide_persona == "sweet_male_mentor":
-            return "여러분! 오늘의 뽀모도로를 모두 완료했습니다. 정말 잘 하셨어요! 오늘처럼 집중해서 좋은 결과가 있길 바랍니다."
+            message = "여러분! 오늘의 뽀모도로를 모두 완료했습니다. 정말 잘 하셨어요! 오늘처럼 집중하면 무엇이든 이룰 수 있답니다. ☺️ 오늘 뽀모도로 소감도 남겨보세요."
         elif guide_persona == "cheerful_female_junior":
-            return "와~ 우리 모든 세션 끝났다! 너무 잘했어! 오늘 진짜 대단한데? 다음에도 같이 해요~~ 🎉"
+            message = "와~ 우리 모든 세션 끝났다! 🎉 오늘 다들 대단한데요? 다음에도 나랑 같이 해줄거죠오~~!? ✨ 아 맞다! 뽀모도로 후기 남기는 것도 잊지말아요~!"
         else:  # rival_male_friend
-            return "음, 생각보다 빨리 끝났네. 나는 좀 더 집중했을 것 같은데... 다음에는 더 높은 목표로 도전해볼까?"
+            message = "음, 생각보다 빨리 끝났네? 나는 좀 더 할 수 있을 것 같은데ㅎ 다음에는 더 오래 하면 좋을 듯. 그리고 뽀모도로 회고는 필수인거 알지?"
+        return f"{participants_mention}\n\n{message}"
 
     if is_start:
         # 작업 시작 메시지
         work_end_str = work_end_time.strftime(time_format) if work_end_time else ""
 
         if guide_persona == "strict_female_boss":
-            return f"{session_num}번째 작업을 시작합니다. {work_end_str}까지 집중해서 작업해주세요. 중간에 딴짓하지 마세요."
+            message = f"{session_num}번째 작업 시작할거야. {work_end_str}까지 집중해서 작업해. 중간에 한 눈 팔지 말고."
         elif guide_persona == "sweet_male_mentor":
-            return f"{session_num}번째 작업 시간입니다! {work_end_str}까지 집중해보세요. 여러분의 노력이 좋은 결실을 맺을 거예요."
+            message = f"{session_num}번째 작업 시간입니다! {work_end_str}까지 집중해보세요. 노력은 거짓말하지 않는답니다~"
         elif guide_persona == "cheerful_female_junior":
-            return f"{session_num}번째 시작! {work_end_str}까지 같이 열심히 해보자~! 화이팅이야! ✨"
+            message = f"{session_num}번째 시작! {work_end_str}까지 열심히 해보자구요~! 💪 우리 모두 화이팅구구! 🕊️"
         else:  # rival_male_friend
-            return f"{session_num}번째 시작. 난 이미 시작했는데... 너도 {work_end_str}까지 얼마나 집중할 수 있는지 볼게."
+            message = f"{session_num}번째 시작. (사실 난 이미 시작했지만ㅎ) {work_end_str}까지 네가 얼마나 집중하는지 볼게."
+        return f"{participants_mention}\n\n{message}"
 
     if is_break and break_end_time:
         # 휴식 안내 메시지
         break_end_str = break_end_time.strftime(time_format)
 
         if guide_persona == "strict_female_boss":
-            return f"{session_num}번째 작업이 끝났습니다. {break_end_str}까지 휴식 시간입니다. 정확히 시간을 지켜주세요."
+            message = f"{session_num}번째 작업이 끝났어. {break_end_str}까지 휴식 시간이야. 정확히 시간을 지키지 않으면 내가 곤란해."
         elif guide_persona == "sweet_male_mentor":
-            return f"잘하셨어요! {session_num}번째 작업을 완료했습니다. {break_end_str}까지 휴식을 취하세요. 충분한 휴식도 중요합니다."
+            message = f"잘하셨어요! {session_num}번째 작업을 완료했습니다. {break_end_str}까지 휴식을 취하세요. 충분한 휴식도 중요하답니다."
         elif guide_persona == "cheerful_female_junior":
-            return f"우와~ {session_num}번째 끝났다! {break_end_str}까지 쉬는 시간이야! 간식이라도 먹자~ 🍪"
+            message = f"우와~ {session_num}번째 끝났다! {break_end_str}까지 쉬는 시간이에요! 간식이라도 먹을래요~? 🍪"
         else:  # rival_male_friend
-            return f"{session_num}번째 끝. 휴식은 {break_end_str}까지. 내가 더 효율적으로 시간을 쓰고 있는 것 같은데?"
+            message = f"{session_num}번째 끝. 휴식은 {break_end_str}까지. 아 물론 나는 안 쉴거야. 난 쉬는게 더 피곤하거든ㅎ"
+        return f"{participants_mention}\n\n{message}"
 
     # 기본 메시지
     return f"{session_num}/{total_sessions} 뽀모도로 진행 중"
