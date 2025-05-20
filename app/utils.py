@@ -72,7 +72,7 @@ def get_current_session_info(
         - is_active(활성 여부): 커뮤니티 활성화 여부 (True/False)
     """
     if current_time is None:
-        current_time = datetime.datetime.now()
+        current_time = tz_now()
 
     # 모든 마감이 완료된 경우
     if current_time >= DUE_DATES[-1]:
