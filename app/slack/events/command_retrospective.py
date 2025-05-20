@@ -9,7 +9,11 @@ from slack_sdk.models.blocks import (
     SectionBlock,
 )
 
-from app.utils import format_remaining_time, get_current_session_info
+from app.utils import (
+    format_remaining_time,
+    get_current_session_info,
+    get_latest_temp_retrospective,
+)
 from app.database import check_user_submitted_this_session
 
 
@@ -26,6 +30,9 @@ async def handle_command_retrospective(
     session_name = current_session_info[1]
     remaining_time = current_session_info[2]
     remaining_time_str = format_remaining_time(remaining_time)
+
+    # 임시 저장된 데이터 확인
+    temp_values = get_latest_temp_retrospective(user_id)
 
     # 사용자가 현재 회차에 이미 회고를 제출했는지 확인
     already_submitted = await check_user_submitted_this_session(
@@ -61,6 +68,9 @@ async def handle_command_retrospective(
                 multiline=True,
                 min_length=1,
                 max_length=500,
+                initial_value=(
+                    temp_values.get("good_points", "") if temp_values else None
+                ),
             ),
         ),
         InputBlock(
@@ -71,6 +81,9 @@ async def handle_command_retrospective(
                 multiline=True,
                 min_length=1,
                 max_length=500,
+                initial_value=(
+                    temp_values.get("improvements", "") if temp_values else None
+                ),
             ),
         ),
         InputBlock(
@@ -81,6 +94,7 @@ async def handle_command_retrospective(
                 multiline=True,
                 min_length=1,
                 max_length=500,
+                initial_value=temp_values.get("learnings", "") if temp_values else None,
             ),
         ),
         InputBlock(
@@ -91,6 +105,9 @@ async def handle_command_retrospective(
                 multiline=True,
                 min_length=1,
                 max_length=500,
+                initial_value=(
+                    temp_values.get("action_item", "") if temp_values else None
+                ),
             ),
         ),
         InputBlock(
@@ -102,6 +119,9 @@ async def handle_command_retrospective(
                 is_decimal_allowed=False,
                 min_value="1",
                 max_value="10",
+                initial_value=(
+                    temp_values.get("emotion_score", "") if temp_values else None
+                ),
             ),
         ),
         InputBlock(
@@ -113,9 +133,18 @@ async def handle_command_retrospective(
                 multiline=True,
                 min_length=1,
                 max_length=500,
+                initial_value=(
+                    temp_values.get("emotion_reason", "") if temp_values else None
+                ),
             ),
         ),
     ]
+
+    # 임시 저장 데이터가 있었다면 알림 추가
+    if temp_values:
+        blocks.insert(
+            1, SectionBlock(text="🤗 이전에 저장하지 못한 임시 데이터를 불러왔어요!")
+        )
 
     # 명령어가 실행된 채널 ID 저장
     channel_id = body["channel_id"]

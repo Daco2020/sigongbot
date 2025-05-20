@@ -5,6 +5,8 @@ import orjson
 import regex as re
 import datetime
 
+import csv
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from app.constants import DUE_DATES, SESSION_NAMES
@@ -124,3 +126,53 @@ def get_persona_profile(guide_persona: str) -> dict[str, str]:
             "icon_url": "https://fcybhtipvkrsrelbsghv.supabase.co/storage/v1/object/public/assets//test.jpg",
         },
     )
+
+
+def save_temp_retrospective(user_id: str, values: dict):
+    """회고 임시 저장"""
+    # temp/유저아이디 디렉토리 생성
+    temp_dir = Path(f"temp/{user_id}")
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    # 타임스탬프로 파일명 생성
+    timestamp = tz_now().strftime("%Y%m%d_%H%M%S")
+    file_path = temp_dir / f"{timestamp}.csv"
+
+    # CSV 파일로 저장
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["field", "value"])  # 헤더
+        for field, value in values.items():
+            writer.writerow([field, value])
+
+
+def get_latest_temp_retrospective(user_id: str) -> dict | None:
+    """가장 최근 임시 저장된 회고 데이터 조회"""
+    temp_dir = Path(f"temp/{user_id}")
+    if not temp_dir.exists():
+        return None
+
+    # 가장 최근 파일 찾기
+    files = list(temp_dir.glob("*.csv"))
+    if not files:
+        return None
+
+    latest_file = max(files, key=lambda x: x.stat().st_mtime)
+
+    # CSV 파일 읽기
+    values = {}
+    with open(latest_file, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            values[row["field"]] = row["value"]
+
+    return values
+
+
+def cleanup_temp_files(user_id: str):
+    """유저의 임시 파일들 삭제"""
+    temp_dir = Path(f"temp/{user_id}")
+    if temp_dir.exists():
+        import shutil
+
+        shutil.rmtree(temp_dir)

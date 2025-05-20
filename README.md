@@ -109,6 +109,28 @@ docker-compose -f docker-compose.prod.yaml up -d --build [blue|green]
 docker stats
 ```
 
+### 컨테이너 종료
+
+1. 컨테이너를 종료하고 리소스(네트워크, 볼륨 등)는 유지하는 경우:
+```bash
+docker-compose -f docker-compose.prod.yaml down
+```
+
+2. 컨테이너를 종료하고 모든 리소스(볼륨 포함)를 함께 삭제하는 경우:
+```bash
+docker-compose -f docker-compose.prod.yaml down -v
+```
+
+3. 실행 중인 컨테이너만 중지하고 싶은 경우:
+```bash
+docker-compose -f docker-compose.prod.yaml stop
+```
+
+4. 특정 서비스만 중지하고 싶은 경우:
+```bash
+docker-compose -f docker-compose.prod.yaml stop [blue|green]
+```
+
 ### 유용한 팁
 - 실시간 로그 확인 시 `-f` 옵션 사용
 - 특정 서비스에 문제가 있을 경우 해당 서비스만 재시작
@@ -131,4 +153,4 @@ TODO:
 - 자기 회고 내역 보기 ✅
 - 뽀모도로 기능 추가 ✅
 - 월요일 21시 리마인드 기능 (미제출자에 한함) 추후 참여자 명단과 채널이 나오면 진행
-- 서버 띄우기
+- 서버 띄우기 ✅

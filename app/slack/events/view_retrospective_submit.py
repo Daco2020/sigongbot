@@ -7,6 +7,7 @@ from slack_sdk.models.blocks import SectionBlock, DividerBlock, ContextBlock
 from app.utils import get_current_session_info
 from app.config import settings
 from app.database.retrospective import create_retrospective
+from app.utils import save_temp_retrospective, cleanup_temp_files
 
 
 async def handle_view_retrospective_submit(
@@ -135,14 +136,34 @@ async def handle_view_retrospective_submit(
             emotion_reason=emotion_reason if emotion_reason else None,
         )
 
+        # 성공적으로 저장되면 임시 파일 삭제
+        cleanup_temp_files(user_id)
+
         # 로깅 추가
         logger.info(f"회고 제출 완료 - User: {user_id}")
 
     except Exception as e:
         logger.error(f"회고 제출 실패 - User: {user_id}, Error: {str(e)}")
+
+        # 에러 발생 시 임시 저장
+        try:
+            save_temp_retrospective(
+                user_id,
+                {
+                    "good_points": good_points,
+                    "improvements": improvements,
+                    "learnings": learnings,
+                    "action_item": action_item,
+                    "emotion_score": emotion_score,
+                    "emotion_reason": emotion_reason,
+                },
+            )
+        except Exception as save_error:
+            logger.error(f"임시 저장 실패 - User: {user_id}, Error: {str(save_error)}")
+
         await ack(
             response_action="errors",
             errors={
-                "good_points": "데이터 저장 중 오류가 발생했습니다. 다시 시도해주세요."
+                "good_points": "데이터 저장 중 오류가 발생했습니다. 다시 시도해주세요. (작성한 내용은 임시 저장되었습니다)"
             },
         )
