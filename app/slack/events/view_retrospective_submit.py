@@ -1,3 +1,4 @@
+import asyncio
 from loguru import logger
 from app.slack.types import ViewBodyType, ViewType
 from slack_bolt.async_app import AsyncAck
@@ -121,7 +122,6 @@ async def handle_view_retrospective_submit(
 
         # 메시지 타임스탬프 가져오기
         slack_ts = response["ts"]
-
         # Supabase에 데이터 저장
         await create_retrospective(
             user_id=user_id,
@@ -167,3 +167,12 @@ async def handle_view_retrospective_submit(
                 "good_points": "데이터 저장 중 오류가 발생했습니다. 다시 시도해주세요. (작성한 내용은 임시 저장되었습니다)"
             },
         )
+
+    # 스레드에 추가 메시지 전송
+    # 회고 공유와는 무관하므로 공유 완료 후 처리
+    await asyncio.sleep(3)  # 부모 메시지 딜레이를 감안하여 3초 대기
+    await client.chat_postMessage(
+        channel=original_channel_id,
+        thread_ts=slack_ts,  # 스레드로 연결
+        text="멋진 회고를 공유해주셔서 고마워요! 타임트래커 이미지도 스레드에 공유해볼까요? 🖼️",
+    )
