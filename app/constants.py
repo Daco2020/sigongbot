@@ -21,7 +21,10 @@ DUE_DATES = [
     datetime.datetime(2025, 7, 22, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 10회차
     datetime.datetime(2025, 7, 29, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 11회차
     datetime.datetime(2025, 8, 5, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 12회차
-    datetime.datetime(2025, 8, 12, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 추가회차
+    datetime.datetime(2025, 8, 12, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 추가 1회차
+    datetime.datetime(2025, 8, 19, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 추가 2회차
+    datetime.datetime(2025, 8, 26, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 추가 3회차
+    datetime.datetime(2025, 9, 2, 5, 0, 0, tzinfo=ZoneInfo("Asia/Seoul")),  # 추가 4회차
 ]
 
 # 각 마감일의 설명
